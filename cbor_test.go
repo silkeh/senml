@@ -31,3 +31,25 @@ func TestDecodeCBORExamples(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkEncodeCBOR(b *testing.B) {
+	v := "Multiple Measurements"
+	ms := testVectors[v].Result
+	for n := 0; n < b.N; n++ {
+		_, err := EncodeCBOR(ms)
+		if err != nil {
+			b.Fatalf("Error encoding %s: %s", v, err)
+		}
+	}
+}
+
+func BenchmarkDecodeCBOR(b *testing.B) {
+	v := "Multiple Data Points 2"
+	t := testVectors[v].CBOR
+	for n := 0; n < b.N; n++ {
+		_, err := DecodeCBOR(t)
+		if err != nil {
+			b.Fatalf("Error encoding %s: %s", v, err)
+		}
+	}
+}

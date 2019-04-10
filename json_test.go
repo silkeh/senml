@@ -29,3 +29,24 @@ func TestExamplesDecodeJSON(t *testing.T) {
 	}
 }
 
+func BenchmarkEncodeJSON(b *testing.B) {
+	v := "Multiple Measurements"
+	ms := testVectors[v].Result
+	for n := 0; n < b.N; n++ {
+		_, err := EncodeJSON(ms)
+		if err != nil {
+			b.Fatalf("Error encoding %s: %s", v, err)
+		}
+	}
+}
+
+func BenchmarkDecodeJSON(b *testing.B) {
+	v := "Multiple Data Points 2"
+	t := []byte(testVectors[v].JSON)
+	for n := 0; n < b.N; n++ {
+		_, err := DecodeJSON(t)
+		if err != nil {
+			b.Fatalf("Error encoding %s: %s", v, err)
+		}
+	}
+}

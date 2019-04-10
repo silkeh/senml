@@ -31,3 +31,24 @@ func TestDecodeXMLExamples(t *testing.T) {
 	}
 }
 
+func BenchmarkEncodeXML(b *testing.B) {
+	v := "Multiple Measurements"
+	ms := testVectors[v].Result
+	for n := 0; n < b.N; n++ {
+		_, err := EncodeXML(ms)
+		if err != nil {
+			b.Fatalf("Error encoding %s: %s", v, err)
+		}
+	}
+}
+
+func BenchmarkDecodeXML(b *testing.B) {
+	v := "Multiple Data Points 2"
+	t := []byte(testVectors[v].XML)
+	for n := 0; n < b.N; n++ {
+		_, err := DecodeXML(t)
+		if err != nil {
+			b.Fatalf("Error encoding %s: %s", v, err)
+		}
+	}
+}
