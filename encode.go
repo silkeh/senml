@@ -16,15 +16,15 @@ func Encode(list []Measurement) (objects []Object) {
 	}
 
 	// Analyze the data
-	minTime := list[0].Attrs().Time
+	baseTime := list[0].Attrs().Time
 	baseName := list[0].Attrs().Name
 	units := make(map[Unit]int)
 	for _, v := range list {
 		m := v.Attrs()
 
 		// Maximum time
-		if m.Time.Before(minTime) {
-			minTime = m.Time
+		if m.Time.Before(baseTime) {
+			baseTime = m.Time
 		}
 
 		// Common baseName
@@ -38,28 +38,19 @@ func Encode(list []Measurement) (objects []Object) {
 		}
 	}
 
-	// Calculate base time
-	var baseTime float64
-	if !minTime.IsZero() {
-		baseTime = timeToFloat(minTime)
-	} else {
-		baseTime = 0
-	}
-	log.Printf("Min Time: %s => %v", minTime, baseTime)
-
 	// Check base
-	var baseUnit string
+	var baseUnit Unit
 	if _, ok := units[None]; ok {
-		baseUnit = ""
+		baseUnit = None
 	} else {
-		baseUnit = string(maxUnit(units))
+		baseUnit = maxUnit(units)
 	}
 
 	// Clear bases when single object
 	if len(list) == 1 {
 		baseName = ""
-		baseUnit = ""
-		baseTime = 0
+		baseUnit = None
+		baseTime = time.Time{}
 	}
 
 	// Create objects
@@ -67,9 +58,11 @@ func Encode(list []Measurement) (objects []Object) {
 		o := m.Object()
 
 		// Apply base values
-		o.Time -= baseTime
+		if !baseTime.IsZero() {
+			o.Time = m.Attrs().Time.Sub(baseTime).Seconds()
+		}
 		o.Name = o.Name[len(baseName):]
-		if o.Unit == baseUnit {
+		if o.Unit == string(baseUnit) {
 			o.Unit = ""
 		}
 
@@ -79,9 +72,9 @@ func Encode(list []Measurement) (objects []Object) {
 	// Set base values in first object
 	// TODO: BaseValue, BaseSum, BaseVersion
 	o := &objects[0]
-	o.BaseTime = baseTime
+	o.BaseTime = timeToFloat(baseTime)
 	o.BaseName = baseName
-	o.BaseUnit = baseUnit
+	o.BaseUnit = string(baseUnit)
 
 	return
 }

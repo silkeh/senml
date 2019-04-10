@@ -59,6 +59,9 @@ func floatToTime(t float64) time.Time {
 }
 
 func timeToFloat(t time.Time) float64 {
+	if t.IsZero() {
+		return 0
+	}
 	return float64(t.UnixNano()) / 1e9
 }
 
