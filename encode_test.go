@@ -26,3 +26,13 @@ func TestEncode(t *testing.T) {
 		}
 	}
 }
+
+func TestEncodeCompare(t *testing.T) {
+	for n, example := range testVectors {
+		c, _ := EncodeCBOR(example.Result)
+		j, _ := EncodeJSON(example.Result)
+		x, _ := EncodeXML(example.Result)
+
+		t.Logf("Comparison for %s CBOR/JSON/XML (bytes):  %03d/%03d/%03d", n, len(c), len(j), len(x))
+	}
+}

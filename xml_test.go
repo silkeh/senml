@@ -9,7 +9,7 @@ func TestEncodeXMLExamples(t *testing.T) {
 			t.Errorf("Error encoding %s: %s", n, err)
 			return
 		}
-		t.Logf("Result for %s: %s", n, b)
+		t.Logf("Result for %s (%v bytes): %s", n, len(b), b)
 	}
 }
 

@@ -10,7 +10,7 @@ func TestEncodeCBORExamples(t *testing.T) {
 			return
 		}
 
-		t.Logf("Result for %s: %x", n, b)
+		t.Logf("Result for %s (%v bytes): %x", n, len(b), b)
 	}
 }
 
