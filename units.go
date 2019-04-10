@@ -1,0 +1,72 @@
+package senml
+
+// Unit definitions
+const (
+	None                    Unit = ""
+	Meter                   Unit = "m"
+	Kilogram                Unit = "kg"
+	Gram                    Unit = "g"
+	Second                  Unit = "s"
+	Ampere                  Unit = "A"
+	Kelvin                  Unit = "K"
+	Candela                 Unit = "cd"
+	Mole                    Unit = "mol"
+	Hertz                   Unit = "Hz"
+	Radian                  Unit = "rad"
+	Steradian               Unit = "sr"
+	Newton                  Unit = "N"
+	Pascal                  Unit = "Pa"
+	Joule                   Unit = "J"
+	Watt                    Unit = "W"
+	Coulomb                 Unit = "C"
+	Volt                    Unit = "V"
+	Farad                   Unit = "F"
+	Ohm                     Unit = "Ohm"
+	Siemens                 Unit = "S"
+	Weber                   Unit = "Wb"
+	Tesla                   Unit = "T"
+	Henry                   Unit = "H"
+	Celsius                 Unit = "Cel"
+	Lumen                   Unit = "lm"
+	Lux                     Unit = "lx"
+	Becquerel               Unit = "Bq"
+	Gray                    Unit = "Gy"
+	Sievert                 Unit = "Sv"
+	Katal                   Unit = "kat"
+	SquareMeter             Unit = "m2"
+	CubicMeter              Unit = "m3"
+	Liter                   Unit = "l"
+	MeterPerSecond          Unit = "m/s"
+	MeterPerSquareSecond    Unit = "m/s2"
+	CubicMeterPerSecond     Unit = "m3/s"
+	LiterPerSecond          Unit = "l/s"
+	WattPerSquareMeter      Unit = "W/m2"
+	CandelaPerSquareMeter   Unit = "cd/m2"
+	Bit                     Unit = "bit"
+	BitPerSecond            Unit = "bit/s"
+	Latitude                Unit = "lat"
+	Longitude               Unit = "lon"
+	PH                      Unit = "pH"
+	Decibel                 Unit = "dB"
+	DBW                     Unit = "dBW"
+	Bel                     Unit = "Bspl"
+	Count                   Unit = "count"
+	Ratio                   Unit = "/"
+	Percent                 Unit = "%"
+	RelativeHumidityPercent Unit = "%RH"
+	RemainingBatteryPercent Unit = "%EL"
+	RemainingBatterySeconds Unit = "EL"
+	Rate                    Unit = "1/s"
+	RPM                     Unit = "1/min"
+	HeartRate               Unit = "beat/min"
+	HeartBeats              Unit = "beats"
+	Conductivity            Unit = "S/m"
+)
+
+// Unit represents a SenML defined unit
+type Unit string
+
+// String returns the string value of a Unit
+func (u Unit) String() string {
+	return string(u)
+}
