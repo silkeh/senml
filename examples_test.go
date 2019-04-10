@@ -1,24 +1,19 @@
 package senml
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
-	"reflect"
 	"regexp"
-	"strings"
-	"testing"
 	"time"
 )
 
 type TestVector struct {
-	SkipEncode  bool
-	JSON   string
-	CBOR   []byte
-	Result []Measurement
+	SkipEncode bool
+	JSON, XML  string
+	CBOR       []byte
+	Result     []Measurement
 }
 
-var examples = map[string]TestVector{
+var testVectors = map[string]TestVector{
+	// The rest of the test vectors are based on RFC8428
 	"Single Data Point": {
 		JSON: `[{"n":"urn:dev:ow:10e2073a01080063","u":"Cel","v":23.1}]`,
 		Result: []Measurement{
@@ -48,6 +43,31 @@ var examples = map[string]TestVector{
 			     {"n":"current","t":-1,"v":1.6},
 			     {"n":"current","v":1.7}
 			   ]`,
+		CBOR: []byte{
+			0x87, 0xa7, 0x21, 0x78, 0x1b, 0x75, 0x72, 0x6e, 0x3a, 0x64, 0x65, 0x76, 0x3a, 0x6f, 0x77, 0x3a,
+			0x31, 0x30, 0x65, 0x32, 0x30, 0x37, 0x33, 0x61, 0x30, 0x31, 0x30, 0x38, 0x30, 0x30, 0x36, 0x3a,
+			0x22, 0xfb, 0x41, 0xd3, 0x03, 0xa1, 0x5b, 0x00, 0x10, 0x62, 0x23, 0x61, 0x41, 0x20, 0x05, 0x00,
+			0x67, 0x76, 0x6f, 0x6c, 0x74, 0x61, 0x67, 0x65, 0x01, 0x61, 0x56, 0x02, 0xfb, 0x40, 0x5e, 0x06,
+			0x66, 0x66, 0x66, 0x66, 0x66, 0xa3, 0x00, 0x67, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x06,
+			0x24, 0x02, 0xfb, 0x3f, 0xf3, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0xa3, 0x00, 0x67, 0x63, 0x75,
+			0x72, 0x72, 0x65, 0x6e, 0x74, 0x06, 0x23, 0x02, 0xfb, 0x3f, 0xf4, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc,
+			0xcd, 0xa3, 0x00, 0x67, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x06, 0x22, 0x02, 0xfb, 0x3f,
+			0xf6, 0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0xa3, 0x00, 0x67, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e,
+			0x74, 0x06, 0x21, 0x02, 0xf9, 0x3e, 0x00, 0xa3, 0x00, 0x67, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e,
+			0x74, 0x06, 0x20, 0x02, 0xfb, 0x3f, 0xf9, 0x99, 0x99, 0x99, 0x99, 0x99, 0x9a, 0xa3, 0x00, 0x67,
+			0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x06, 0x00, 0x02, 0xfb, 0x3f, 0xfb, 0x33, 0x33, 0x33,
+			0x33, 0x33, 0x33,
+		},
+		XML: `<sensml xmlns="urn:ietf:params:xml:ns:senml">
+			    <senml bn="urn:dev:ow:10e2073a0108006:" bt="1.276020076001e+09"
+			    bu="A" bver="5" n="voltage" u="V" v="120.1"></senml>
+			    <senml n="current" t="-5" v="1.2"></senml>
+			    <senml n="current" t="-4" v="1.3"></senml>
+			    <senml n="current" t="-3" v="1.4"></senml>
+			    <senml n="current" t="-2" v="1.5"></senml>
+			    <senml n="current" t="-1" v="1.6"></senml>
+			    <senml n="current" v="1.7"></senml>
+			  </sensml>`,
 		Result: []Measurement{
 			NewValue("urn:dev:ow:10e2073a0108006:voltage", 120.1, Volt, floatToTime(1.276020076001e+09), 0),
 			NewValue("urn:dev:ow:10e2073a0108006:current", 1.2, Ampere, floatToTime(1.276020076001e+09-5), 0),
@@ -181,57 +201,3 @@ var examples = map[string]TestVector{
 }
 
 var regexpWhitespace = regexp.MustCompile(`\s`)
-
-func TestExamplesDecodeJSON(t *testing.T) {
-	for n, example := range examples {
-		res, err := DecodeJSON([]byte(example.JSON))
-		if err != nil {
-			t.Errorf("Decode error in example %s: %s", n, err)
-			continue
-		}
-
-		if !equal(res, example.Result) {
-			t.Errorf("Decode for example %s incorrect, got:\n%s\nexpected:\n%s", n, toString(res), toString(example.Result))
-		}
-	}
-}
-
-func TestExamplesEncode(t *testing.T) {
-	for n, example := range examples {
-		if example.SkipEncode {
-			continue
-		}
-
-		var exp []Object
-		err := json.Unmarshal([]byte(example.JSON), &exp)
-		if err != nil {
-			t.Errorf("JSON error in example %s: %s", n, err)
-			continue
-		}
-
-		res := Encode(example.Result)
-		if !reflect.DeepEqual(exp, res) {
-			t.Errorf("Encode for example %s incorrect, got:\n%#v\nexpected:\n%#v", n, res, exp)
-		}
-	}
-}
-
-
-func toString(ml []Measurement) string {
-	strs := make([]string, len(ml))
-	for i, m := range ml {
-		strs[i] = fmt.Sprintf("%#v", m)
-	}
-
-	return strings.Join(strs, ",\n")
-}
-
-func equal(a, b []Measurement) bool {
-	for i := range a {
-		if !a[i].Equal(b[i]) {
-			log.Printf("\n%#v\n%#v", a[i], b[i])
-			return false
-		}
-	}
-	return true
-}
