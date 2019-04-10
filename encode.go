@@ -1,10 +1,6 @@
 package senml
 
-import (
-	"encoding/json"
-	"log"
-)
-
+import "time"
 
 // Encode encodes a list of measurements to corresponding Measurement objects.
 func Encode(list []Measurement) (objects []Object) {
@@ -77,19 +73,4 @@ func Encode(list []Measurement) (objects []Object) {
 	o.BaseUnit = string(baseUnit)
 
 	return
-}
-
-// EncodeCBOR encodes a list of measurements into CBOR.
-func EncodeCBOR(list []Measurement) ([]byte, error) {
-	panic("not implemented")
-}
-
-// EncodeJSON encodes a list of measurements into JSON.
-func EncodeJSON(list []Measurement) ([]byte, error) {
-	return json.Marshal(Encode(list))
-}
-
-// EncodeXML encodes a list of measurements into XML.
-func EncodeXML(list []Measurement) ([]byte, error) {
-	panic("not implemented")
 }

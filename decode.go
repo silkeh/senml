@@ -1,9 +1,5 @@
 package senml
 
-import (
-	"encoding/json"
-)
-
 // Decode decodes a list of Measurement objects into measurement values.
 func Decode(objects []Object) (list []Measurement, err error) {
 	list = make([]Measurement, len(objects))
@@ -60,24 +56,4 @@ func Decode(objects []Object) (list []Measurement, err error) {
 	}
 
 	return list, nil
-}
-
-// DecodeCBOR decodes a list of measurements from CBOR.
-func DecodeCBOR(c []byte) ([]Measurement, error) {
-	panic("not implemented")
-}
-
-// DecodeJSON decodes a list of measurements from JSON.
-func DecodeJSON(j []byte) ([]Measurement, error) {
-	obj := make([]Object, 0)
-	err := json.Unmarshal(j, &obj)
-	if err != nil {
-		return nil, err
-	}
-	return Decode(obj)
-}
-
-// DecodeXML decodes a list of measurements from XML.
-func DecodeXML(x []byte) ([]Measurement, error) {
-	panic("not implemented")
 }
