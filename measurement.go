@@ -86,7 +86,7 @@ func (v *Value) Equal(ml Measurement) bool {
 // Object returns a SenML object representing the value.
 func (v *Value) Object() Object {
 	s := v.Attributes.Object()
-	s.Value = v.Value
+	s.Value = &v.Value
 	return s
 }
 
@@ -122,7 +122,7 @@ func (v *Sum) Equal(ml Measurement) bool {
 // Object returns a SenML object representing the value.
 func (v *Sum) Object() Object {
 	s := v.Attributes.Object()
-	s.Sum = v.Value
+	s.Sum = &v.Value
 	return s
 }
 
@@ -194,7 +194,7 @@ func (v *Boolean) Equal(ml Measurement) bool {
 // Object returns a SenML object representing the value.
 func (v *Boolean) Object() Object {
 	s := v.Attributes.Object()
-	s.BooleanValue = v.Value
+	s.BooleanValue = &v.Value
 	return s
 }
 
