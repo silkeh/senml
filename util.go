@@ -69,14 +69,14 @@ func floatToDuration(d float64) time.Duration {
 	return time.Duration(d * float64(time.Second))
 }
 
-func parseTime(base, val float64) (t time.Time) {
+func parseTime(base, val float64, now time.Time) (t time.Time) {
 	// Convert base time to Time
 	if base == 0 {
-		t = time.Time{}
+		t = now
 	} else if base >= (1 << 28) {
 		t = floatToTime(base)
 	} else {
-		t = time.Now().Add(floatToDuration(base))
+		t = now.Add(floatToDuration(base))
 	}
 
 	// Convert value to Time

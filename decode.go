@@ -1,10 +1,22 @@
 package senml
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
+
+// AutoTime toggles the automatic setting of zero timestamps to now.
+// Disabling this option results in timestamps relative to zero time when no exact time is given.
+var AutoTime = true
 
 // Decode decodes a list of Measurement objects into measurement values.
 func Decode(objects []Object) (list []Measurement, err error) {
 	list = make([]Measurement, len(objects))
+
+	var now time.Time
+	if AutoTime {
+		now = time.Now()
+	}
 
 	var baseName string
 	var baseTime float64
@@ -39,7 +51,7 @@ func Decode(objects []Object) (list []Measurement, err error) {
 		m := Attributes{
 			Name:       baseName + o.Name,
 			Unit:       unit,
-			Time:       parseTime(baseTime, o.Time),
+			Time:       parseTime(baseTime, o.Time, now),
 			UpdateTime: floatToDuration(o.UpdateTime),
 		}
 
