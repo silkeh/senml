@@ -2,6 +2,7 @@ Package senml
 =============
 
 [![godoc](https://godoc.org/github.com/silkeh/senml?status.svg)](https://godoc.org/github.com/silkeh/senml)
+[![cirrus ci](https://api.cirrus-ci.com/github/silkeh/senml.svg)](https://cirrus-ci.com/github/silkeh/senml)
 [![goreportcard](https://goreportcard.com/badge/github.com/silkeh/senml)](https://goreportcard.com/report/github.com/silkeh/senml)
 [![gocover](http://gocover.io/_badge/github.com/silkeh/senml)](http://gocover.io/github.com/silkeh/senml)
 
