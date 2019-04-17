@@ -9,9 +9,9 @@ import (
 // Disabling this option results in timestamps relative to zero time when no exact time is given.
 var AutoTime = true
 
-// Decode decodes a list of Measurement objects into measurement values.
-func Decode(objects []Object) (list []Measurement, err error) {
-	list = make([]Measurement, len(objects))
+// Decode decodes a list of Measurement records into measurement values.
+func Decode(records []Record) (list []Measurement, err error) {
+	list = make([]Measurement, len(records))
 
 	var now time.Time
 	if AutoTime {
@@ -24,7 +24,7 @@ func Decode(objects []Object) (list []Measurement, err error) {
 	var baseValue float64
 	var baseSum float64
 
-	for i, o := range objects {
+	for i, o := range records {
 		if o.BaseName != "" {
 			baseName = o.BaseName
 		}
@@ -67,7 +67,7 @@ func Decode(objects []Object) (list []Measurement, err error) {
 		case o.BooleanValue != nil:
 			list[i] = &Boolean{Attributes: m, Value: *o.BooleanValue}
 		default:
-			return nil, fmt.Errorf("object has no value attribute set: %#v", o)
+			return nil, fmt.Errorf("record has no value attribute set: %#v", o)
 		}
 	}
 

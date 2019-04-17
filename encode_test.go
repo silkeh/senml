@@ -13,7 +13,7 @@ func TestEncode(t *testing.T) {
 			continue
 		}
 
-		var exp []Object
+		var exp []Record
 		err := json.Unmarshal([]byte(test.JSON), &exp)
 		if err != nil {
 			t.Errorf("JSON error in test %s: %s", n, err)

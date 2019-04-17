@@ -2,10 +2,10 @@ package senml
 
 import "encoding/xml"
 
-// Object represents a SenML object.
+// Record represents a SenML record.
 // This type is used as an intermediary between the Measurement values and the actual encoding.
-// All SenML attributes are supported in this object.
-type Object struct {
+// All SenML attributes are supported in this record.
+type Record struct {
 	XMLName xml.Name `json:"-" xml:"senml" codec:"-"`
 	_struct      bool    `codec:",int,omitempty"`
 	BaseName     string  `json:"bn,omitempty" xml:"bn,attr,omitempty" codec:"-2"`

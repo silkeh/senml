@@ -2,9 +2,9 @@ package senml
 
 import "time"
 
-// Encode encodes a list of measurements to corresponding Measurement objects.
-func Encode(list []Measurement) (objects []Object) {
-	objects = make([]Object, len(list))
+// Encode encodes a list of measurements to corresponding Measurement records.
+func Encode(list []Measurement) (records []Record) {
+	records = make([]Record, len(list))
 
 	// Empty list, empty result
 	if len(list) == 0 {
@@ -42,16 +42,16 @@ func Encode(list []Measurement) (objects []Object) {
 		baseUnit = maxUnit(units)
 	}
 
-	// Clear bases when single object
+	// Clear bases when single record
 	if len(list) == 1 {
 		baseName = ""
 		baseUnit = None
 		baseTime = time.Time{}
 	}
 
-	// Create objects
+	// Create records
 	for i, m := range list {
-		o := m.Object()
+		o := m.Record()
 
 		// Apply base values
 		if !baseTime.IsZero() {
@@ -62,12 +62,12 @@ func Encode(list []Measurement) (objects []Object) {
 			o.Unit = ""
 		}
 
-		objects[i] = o
+		records[i] = o
 	}
 
-	// Set base values in first object
+	// Set base values in first record
 	// TODO: BaseValue, BaseSum, BaseVersion
-	o := &objects[0]
+	o := &records[0]
 	o.BaseTime = timeToFloat(baseTime)
 	o.BaseName = baseName
 	o.BaseUnit = string(baseUnit)

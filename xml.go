@@ -13,7 +13,7 @@ const (
 type xmlContainer struct {
 	XMLName   xml.Name `xml:"sensml" name:"urn:ietf:params:xml:ns:senml"`
 	XMLNamespace string `xml:"xmlns,attr"`
-	Objs []Object
+	Objs []Record
 }
 
 // EncodeXML encodes a list of measurements into XML.

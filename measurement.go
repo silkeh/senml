@@ -15,8 +15,8 @@ type Measurement interface {
 	// Equal returns true if the given Measurement value is equal.
 	Equal(Measurement) bool
 
-	// Object returns a SenML object representing the value.
-	Object() Object
+	// Record returns a SenML record representing the value.
+	Record() Record
 }
 
 // Attributes contains the properties common to a measurement.
@@ -37,8 +37,8 @@ func (m *Attributes) Equal(s *Attributes) bool {
 	return m.Name == s.Name && m.Unit == s.Unit && m.Time.Equal(s.Time) && m.UpdateTime == s.UpdateTime
 }
 
-// Object returns a SenML object representing the value.
-func (m *Attributes) Object() Object {
+// Record returns a SenML record representing the value.
+func (m *Attributes) Record() Record {
 	var t float64
 	if m.Time.IsZero() {
 		t = 0
@@ -46,7 +46,7 @@ func (m *Attributes) Object() Object {
 		t = float64(m.Time.Unix())
 	}
 
-	return Object{
+	return Record{
 		Name:       m.Name,
 		Unit:       string(m.Unit),
 		Time:       t,
@@ -83,9 +83,9 @@ func (v *Value) Equal(ml Measurement) bool {
 	return v.Attributes.Equal(&b.Attributes) && v.Value == b.Value
 }
 
-// Object returns a SenML object representing the value.
-func (v *Value) Object() Object {
-	s := v.Attributes.Object()
+// Record returns a SenML record representing the value.
+func (v *Value) Record() Record {
+	s := v.Attributes.Record()
 	s.Value = &v.Value
 	return s
 }
@@ -119,9 +119,9 @@ func (v *Sum) Equal(ml Measurement) bool {
 	return v.Attributes.Equal(&b.Attributes) && v.Value == b.Value
 }
 
-// Object returns a SenML object representing the value.
-func (v *Sum) Object() Object {
-	s := v.Attributes.Object()
+// Record returns a SenML record representing the value.
+func (v *Sum) Record() Record {
+	s := v.Attributes.Record()
 	s.Sum = &v.Value
 	return s
 }
@@ -155,9 +155,9 @@ func (v *String) Equal(ml Measurement) bool {
 	return v.Attributes.Equal(&b.Attributes) && v.Value == b.Value
 }
 
-// Object returns a SenML object representing the value.
-func (v *String) Object() Object {
-	s := v.Attributes.Object()
+// Record returns a SenML record representing the value.
+func (v *String) Record() Record {
+	s := v.Attributes.Record()
 	s.StringValue = v.Value
 	return s
 }
@@ -191,9 +191,9 @@ func (v *Boolean) Equal(ml Measurement) bool {
 	return v.Attributes.Equal(&b.Attributes) && v.Value == b.Value
 }
 
-// Object returns a SenML object representing the value.
-func (v *Boolean) Object() Object {
-	s := v.Attributes.Object()
+// Record returns a SenML record representing the value.
+func (v *Boolean) Record() Record {
+	s := v.Attributes.Record()
 	s.BooleanValue = &v.Value
 	return s
 }
@@ -227,9 +227,9 @@ func (v *Data) Equal(ml Measurement) bool {
 	return v.Attributes.Equal(&b.Attributes) && bytes.Equal(v.Value, b.Value)
 }
 
-// Object returns a SenML object representing the value.
-func (v *Data) Object() Object {
-	s := v.Attributes.Object()
+// Record returns a SenML record representing the value.
+func (v *Data) Record() Record {
+	s := v.Attributes.Record()
 	s.DataValue = v.Value
 	return s
 }

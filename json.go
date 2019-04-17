@@ -9,7 +9,7 @@ func EncodeJSON(list []Measurement) ([]byte, error) {
 
 // DecodeJSON decodes a list of measurements from JSON.
 func DecodeJSON(j []byte) ([]Measurement, error) {
-	obj := make([]Object, 0)
+	obj := make([]Record, 0)
 	err := json.Unmarshal(j, &obj)
 	if err != nil {
 		return nil, err

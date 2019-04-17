@@ -12,7 +12,7 @@ func EncodeCBOR(list []Measurement) (b []byte, err error) {
 
 // DecodeCBOR decodes a list of measurements from CBOR.
 func DecodeCBOR(c []byte) ([]Measurement, error) {
-	obj := make([]Object, 0)
+	obj := make([]Record, 0)
 	err := codec.NewDecoderBytes(c, &cbor).Decode(&obj)
 	if err != nil {
 		return nil, err
