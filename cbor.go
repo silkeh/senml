@@ -19,5 +19,3 @@ func DecodeCBOR(c []byte) ([]Measurement, error) {
 	}
 	return Decode(obj)
 }
-
-

@@ -40,7 +40,6 @@ func lcp(l []string) string {
 	return min
 }
 
-
 func maxUnit(units map[Unit]int) (unit Unit) {
 	maxV := 1
 	for u, c := range units {

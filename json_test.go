@@ -14,7 +14,6 @@ func TestEncodeJSONExamples(t *testing.T) {
 	}
 }
 
-
 func TestExamplesDecodeJSON(t *testing.T) {
 	AutoTime = false
 	for n, example := range testVectors {

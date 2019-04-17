@@ -5,15 +5,15 @@ import (
 )
 
 const (
-	xmlStart = `<sensml xmlns="urn:ietf:params:xml:ns:senml">`
-	xmlEnd = `</sensml>`
+	xmlStart     = `<sensml xmlns="urn:ietf:params:xml:ns:senml">`
+	xmlEnd       = `</sensml>`
 	xmlNamespace = `urn:ietf:params:xml:ns:senml`
 )
 
 type xmlContainer struct {
-	XMLName   xml.Name `xml:"sensml" name:"urn:ietf:params:xml:ns:senml"`
-	XMLNamespace string `xml:"xmlns,attr"`
-	Objs []Record
+	XMLName      xml.Name `xml:"sensml" name:"urn:ietf:params:xml:ns:senml"`
+	XMLNamespace string   `xml:"xmlns,attr"`
+	Objs         []Record
 }
 
 // EncodeXML encodes a list of measurements into XML.
