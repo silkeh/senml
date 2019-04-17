@@ -1,0 +1,20 @@
+container:
+  image: golang:latest
+
+fmt_task:
+  test_script: diff -u <(echo -n) <(go fmt ./...)
+
+lint_task:
+  get_script: go get -u golang.org/x/lint/golint
+  test_script: golint -set_exit_status ./...
+
+test_task:
+  container:
+    matrix:
+      - image: golang:latest
+      - image: golang:1.7
+      - image: golang:1.11
+  env:
+    CIRRUS_WORKING_DIR: /go/src/github.com/$CIRRUS_REPO_FULL_NAME
+  get_script: go get -t -v ./...
+  test_script: go test -v ./...
