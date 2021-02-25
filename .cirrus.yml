@@ -12,8 +12,8 @@ test_task:
   container:
     matrix:
       - image: golang:latest
-      - image: golang:1.7
       - image: golang:1.11
+      - image: golang:1.15
   env:
     CIRRUS_WORKING_DIR: /go/src/github.com/$CIRRUS_REPO_FULL_NAME
   get_script: go get -t -v ./...
