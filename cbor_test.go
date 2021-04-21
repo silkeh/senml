@@ -15,6 +15,7 @@ func TestEncodeCBORExamples(t *testing.T) {
 }
 
 func TestDecodeCBORExamples(t *testing.T) {
+	AutoTime = false
 	for n, example := range testVectors {
 		if example.CBOR == nil {
 			continue

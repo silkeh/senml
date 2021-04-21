@@ -19,25 +19,25 @@ func Decode(records []Record) (list []Measurement, err error) {
 	}
 
 	var baseName string
-	var baseTime float64
+	var baseTime Numeric
 	var baseUnit Unit
-	var baseValue float64
-	var baseSum float64
+	var baseValue Numeric
+	var baseSum Numeric
 
 	for i, o := range records {
 		if o.BaseName != "" {
 			baseName = o.BaseName
 		}
-		if o.BaseTime != 0 {
+		if o.BaseTime != nil {
 			baseTime = o.BaseTime
 		}
 		if o.BaseUnit != "" {
 			baseUnit = Unit(o.BaseUnit)
 		}
-		if o.BaseValue != 0 {
+		if o.BaseValue != nil {
 			baseValue = o.BaseValue
 		}
-		if o.BaseSum != 0 {
+		if o.BaseSum != nil {
 			baseSum = o.BaseSum
 		}
 
@@ -52,14 +52,14 @@ func Decode(records []Record) (list []Measurement, err error) {
 			Name:       baseName + o.Name,
 			Unit:       unit,
 			Time:       parseTime(baseTime, o.Time, now),
-			UpdateTime: floatToDuration(o.UpdateTime),
+			UpdateTime: numericToDuration(o.UpdateTime),
 		}
 
 		switch {
 		case o.Value != nil:
-			list[i] = &Value{Attributes: m, Value: baseValue + *o.Value}
+			list[i] = &Value{Attributes: m, Value: numericToFloat64(sumNumeric(baseValue, o.Value))}
 		case o.Sum != nil:
-			list[i] = &Sum{Attributes: m, Value: baseSum + *o.Sum}
+			list[i] = &Sum{Attributes: m, Value: numericToFloat64(sumNumeric(baseSum, o.Sum))}
 		case o.StringValue != "":
 			list[i] = &String{Attributes: m, Value: o.StringValue}
 		case len(o.DataValue) > 0:

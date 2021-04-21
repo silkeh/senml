@@ -53,11 +53,19 @@ func Encode(list []Measurement) (records []Record) {
 	for i, m := range list {
 		o := m.Record()
 
-		// Apply base values
+		// Set time based on base time
 		if !baseTime.IsZero() {
-			o.Time = m.Attrs().Time.Sub(baseTime).Seconds()
+			if baseTime.Equal(m.Attrs().Time) {
+				o.Time = nil
+			} else {
+				o.Time = m.Attrs().Time.Sub(baseTime).Seconds()
+			}
 		}
+
+		// Set name based on base name
 		o.Name = o.Name[len(baseName):]
+
+		// Set unit based on base unit
 		if o.Unit == string(baseUnit) {
 			o.Unit = ""
 		}
@@ -68,9 +76,11 @@ func Encode(list []Measurement) (records []Record) {
 	// Set base values in first record
 	// TODO: BaseValue, BaseSum, BaseVersion
 	o := &records[0]
-	o.BaseTime = timeToFloat(baseTime)
 	o.BaseName = baseName
 	o.BaseUnit = string(baseUnit)
+	if !baseTime.IsZero() {
+		o.BaseTime = timeToNumeric(baseTime)
+	}
 
 	return
 }

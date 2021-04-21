@@ -2,7 +2,6 @@ package senml
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -18,7 +17,6 @@ func toString(ml []Measurement) string {
 func equal(a, b []Measurement) bool {
 	for i := range a {
 		if !a[i].Equal(b[i]) {
-			log.Printf("\n%#v\n%#v", a[i], b[i])
 			return false
 		}
 	}

@@ -13,6 +13,53 @@ type TestVector struct {
 }
 
 var testVectors = map[string]TestVector{
+	"Empty": {
+		JSON: `[]`,
+		CBOR: []byte{0x80},
+		XML:  `<sensml xmlns="urn:ietf:params:xml:ns:senml"></sensml>`,
+	},
+	"Numeric types": {
+		SkipEncode: false, // only test if the values below are decoded correctly
+		JSON: `[
+                 {"v":5},{"v":44},{"v":11290},{"v":739910425},{"v":3177891079421588000},
+                 {"v":-6},{"v":-45},{"v":-11291},{"v":-739910426},{"v":-3177891079421588000},
+                 {"v":8.1171875},{"v":2.9390623569488525},{"v":1.7},{"v":271.15}
+               ]`,
+		CBOR: []byte{
+			0x8E,
+			0xa1, 0x02, 0x05,
+			0xa1, 0x02, 0x18, 0x2C,
+			0xa1, 0x02, 0x19, 0x2C, 0x1A,
+			0xa1, 0x02, 0x1a, 0x2C, 0x1A, 0x23, 0x19,
+			0xa1, 0x02, 0x1b, 0x2C, 0x1A, 0x23, 0x19, 0x7b, 0xce, 0x72, 0xd7,
+			0xa1, 0x02, 0x25,
+			0xa1, 0x02, 0x38, 0x2C,
+			0xa1, 0x02, 0x39, 0x2C, 0x1A,
+			0xa1, 0x02, 0x3a, 0x2C, 0x1A, 0x23, 0x19,
+			0xa1, 0x02, 0x3b, 0x2C, 0x1A, 0x23, 0x19, 0x7b, 0xce, 0x72, 0xd7,
+			0xa1, 0x02, 0xf9, 0x48, 0x0f,
+			0xa1, 0x02, 0xfa, 0x40, 0x3c, 0x19, 0x99,
+			0xa1, 0x02, 0xfb, 0x3f, 0xfb, 0x33, 0x33, 0x33, 0x33, 0x33, 0x33,
+			0xa1, 0x02, 0xc4, 0x82, 0x21, 0x19, 0x69, 0xeb,
+		},
+		Result: []Measurement{
+			NewValue("", 5, None, time.Time{}, 0),
+			NewValue("", 44, None, time.Time{}, 0),
+			NewValue("", 11290, None, time.Time{}, 0),
+			NewValue("", 739910425, None, time.Time{}, 0),
+			NewValue("", 3177891079421588183, None, time.Time{}, 0),
+			NewValue("", -6, None, time.Time{}, 0),
+			NewValue("", -45, None, time.Time{}, 0),
+			NewValue("", -11291, None, time.Time{}, 0),
+			NewValue("", -739910426, None, time.Time{}, 0),
+			NewValue("", -3177891079421588184, None, time.Time{}, 0),
+			NewValue("", 8.1171875, None, time.Time{}, 0),
+			NewValue("", 2.9390623569488525, None, time.Time{}, 0),
+			NewValue("", 1.7, None, time.Time{}, 0),
+			NewValue("", 271.15, None, time.Time{}, 0),
+		},
+	},
+
 	// The rest of the test vectors are based on RFC8428
 	"Single Data Point": {
 		JSON: `[{"n":"urn:dev:ow:10e2073a01080063","u":"Cel","v":23.1}]`,
@@ -80,7 +127,7 @@ var testVectors = map[string]TestVector{
 	},
 	"Multiple Data Points 3": {
 		JSON: `[
-			     {"bn":"urn:dev:ow:10e2073a01080063","bt":1.320067464e+09,
+			     {"bn":"urn:dev:ow:10e2073a01080063","bt":1.3200674641e+09,
 			      "bu":"%RH","v":21.2},
 			     {"t":10,"v":21.3},
 			     {"t":20,"v":21.4},
@@ -92,15 +139,15 @@ var testVectors = map[string]TestVector{
 			     {"t":80,"v":21.7}
 			]`,
 		Result: []Measurement{
-			NewValue("urn:dev:ow:10e2073a01080063", 21.2, RelativeHumidityPercent, floatToTime(1.320067464e+09+00), 0),
-			NewValue("urn:dev:ow:10e2073a01080063", 21.3, RelativeHumidityPercent, floatToTime(1.320067464e+09+10), 0),
-			NewValue("urn:dev:ow:10e2073a01080063", 21.4, RelativeHumidityPercent, floatToTime(1.320067464e+09+20), 0),
-			NewValue("urn:dev:ow:10e2073a01080063", 21.4, RelativeHumidityPercent, floatToTime(1.320067464e+09+30), 0),
-			NewValue("urn:dev:ow:10e2073a01080063", 21.5, RelativeHumidityPercent, floatToTime(1.320067464e+09+40), 0),
-			NewValue("urn:dev:ow:10e2073a01080063", 21.5, RelativeHumidityPercent, floatToTime(1.320067464e+09+50), 0),
-			NewValue("urn:dev:ow:10e2073a01080063", 21.5, RelativeHumidityPercent, floatToTime(1.320067464e+09+60), 0),
-			NewValue("urn:dev:ow:10e2073a01080063", 21.6, RelativeHumidityPercent, floatToTime(1.320067464e+09+70), 0),
-			NewValue("urn:dev:ow:10e2073a01080063", 21.7, RelativeHumidityPercent, floatToTime(1.320067464e+09+80), 0),
+			NewValue("urn:dev:ow:10e2073a01080063", 21.2, RelativeHumidityPercent, floatToTime(1.3200674641e+09+00), 0),
+			NewValue("urn:dev:ow:10e2073a01080063", 21.3, RelativeHumidityPercent, floatToTime(1.3200674641e+09+10), 0),
+			NewValue("urn:dev:ow:10e2073a01080063", 21.4, RelativeHumidityPercent, floatToTime(1.3200674641e+09+20), 0),
+			NewValue("urn:dev:ow:10e2073a01080063", 21.4, RelativeHumidityPercent, floatToTime(1.3200674641e+09+30), 0),
+			NewValue("urn:dev:ow:10e2073a01080063", 21.5, RelativeHumidityPercent, floatToTime(1.3200674641e+09+40), 0),
+			NewValue("urn:dev:ow:10e2073a01080063", 21.5, RelativeHumidityPercent, floatToTime(1.3200674641e+09+50), 0),
+			NewValue("urn:dev:ow:10e2073a01080063", 21.5, RelativeHumidityPercent, floatToTime(1.3200674641e+09+60), 0),
+			NewValue("urn:dev:ow:10e2073a01080063", 21.6, RelativeHumidityPercent, floatToTime(1.3200674641e+09+70), 0),
+			NewValue("urn:dev:ow:10e2073a01080063", 21.7, RelativeHumidityPercent, floatToTime(1.3200674641e+09+80), 0),
 		},
 	},
 	"Multiple Measurements": {

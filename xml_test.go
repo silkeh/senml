@@ -14,6 +14,7 @@ func TestEncodeXMLExamples(t *testing.T) {
 }
 
 func TestDecodeXMLExamples(t *testing.T) {
+	AutoTime = false
 	for n, example := range testVectors {
 		if example.XML == "" {
 			continue

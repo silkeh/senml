@@ -39,19 +39,17 @@ func (m *Attributes) Equal(s *Attributes) bool {
 
 // Record returns a SenML record representing the value.
 func (m *Attributes) Record() Record {
-	var t float64
-	if m.Time.IsZero() {
-		t = 0
-	} else {
-		t = float64(m.Time.Unix())
+	r := Record{
+		Name: m.Name,
+		Unit: string(m.Unit),
+		Time: timeToNumeric(m.Time),
 	}
 
-	return Record{
-		Name:       m.Name,
-		Unit:       string(m.Unit),
-		Time:       t,
-		UpdateTime: m.UpdateTime.Seconds(),
+	if m.UpdateTime != 0 {
+		r.UpdateTime = m.UpdateTime.Seconds()
 	}
+
+	return r
 }
 
 // Value represents a floating point measurement value.
@@ -86,7 +84,7 @@ func (v *Value) Equal(ml Measurement) bool {
 // Record returns a SenML record representing the value.
 func (v *Value) Record() Record {
 	s := v.Attributes.Record()
-	s.Value = &v.Value
+	s.Value = v.Value
 	return s
 }
 
@@ -122,7 +120,7 @@ func (v *Sum) Equal(ml Measurement) bool {
 // Record returns a SenML record representing the value.
 func (v *Sum) Record() Record {
 	s := v.Attributes.Record()
-	s.Sum = &v.Value
+	s.Sum = v.Value
 	return s
 }
 
