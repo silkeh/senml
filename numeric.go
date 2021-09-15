@@ -1,19 +1,20 @@
 package senml
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
 
 // Numeric represents a numeric value. This can be any integer or floating point
-// type, or a Decimal fraction.
+// type (including json.Number), or a Decimal fraction.
 // Numeric is equal to the empty interface, but using it for anything other than
 // those types will result in a panic.
 type Numeric interface{}
 
 // sumNumeric adds two Numeric types and returns the sum.
 func sumNumeric(a, b Numeric) Numeric {
-	switch a.(type) {
+	switch v := a.(type) {
 	case nil:
 		return b
 	case int, int8, int16, int32, int64:
@@ -21,6 +22,11 @@ func sumNumeric(a, b Numeric) Numeric {
 	case uint, uint8, uint16, uint32, uint64:
 		return addToNumericUint(a, b)
 	case float32, float64, Decimal, *Decimal:
+		return numericToFloat64(a) + numericToFloat64(b)
+	case json.Number:
+		if i, err := v.Int64(); err != nil {
+			return addToNumericInt(i, b)
+		}
 		return numericToFloat64(a) + numericToFloat64(b)
 	default:
 		panic(fmt.Sprintf("invalid value type: %T", a))
@@ -91,7 +97,7 @@ func numericToDuration(v Numeric) time.Duration {
 		return 0
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return time.Duration(numericToInt64(v)) * time.Second
-	case float32, float64, Decimal, *Decimal:
+	case float32, float64, Decimal, *Decimal, json.Number:
 		return floatToDuration(numericToFloat64(v))
 	default:
 		panic("unsupported type")
@@ -132,6 +138,9 @@ func numericToInt64(v Numeric) int64 {
 		return int64(i.Int())
 	case *Decimal:
 		return int64(i.Int())
+	case json.Number:
+		v, _ := i.Int64()
+		return v
 	default:
 		panic(fmt.Sprintf("invalid value type: %T", i))
 	}
@@ -171,6 +180,9 @@ func numericToUint64(v Numeric) uint64 {
 		return uint64(i.Int())
 	case *Decimal:
 		return uint64(i.Int())
+	case json.Number:
+		v, _ := i.Int64()
+		return uint64(v)
 	default:
 		panic(fmt.Sprintf("invalid value type: %T", i))
 	}
@@ -210,6 +222,9 @@ func numericToFloat64(v Numeric) float64 {
 		return f.Float()
 	case *Decimal:
 		return f.Float()
+	case json.Number:
+		v, _ := f.Float64()
+		return v
 	default:
 		panic(fmt.Sprintf("invalid value type: %T", f))
 	}
