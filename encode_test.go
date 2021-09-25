@@ -2,7 +2,6 @@ package senml
 
 import (
 	"encoding/json"
-	"reflect"
 	"testing"
 )
 
@@ -21,8 +20,14 @@ func TestEncode(t *testing.T) {
 		}
 
 		res := Encode(test.Result)
-		if !reflect.DeepEqual(exp, res) {
+		if len(exp) != len(res) {
 			t.Errorf("Encode for test %s incorrect, got:\n%#v\nexpected:\n%#v", n, res, exp)
+		}
+		for i := range exp {
+			if !exp[i].Equal(&res[i]) {
+				t.Errorf("Encode for test %s incorrect, got:\n%#v\nexpected:\n%#v", n, res, exp)
+				break
+			}
 		}
 	}
 }

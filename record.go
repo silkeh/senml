@@ -1,6 +1,7 @@
 package senml
 
 import (
+	"bytes"
 	"encoding/xml"
 )
 
@@ -25,4 +26,26 @@ type Record struct {
 	Sum          Numeric  `json:"s,omitempty" xml:"s,attr,omitempty" codec:"5"`
 	Time         Numeric  `json:"t,omitempty" xml:"t,attr,omitempty" codec:"6"`
 	UpdateTime   Numeric  `json:"ut,omitempty" xml:"ut,attr,omitempty" codec:"7"`
+}
+
+// Equal returns true if the given record has equal values to the current one.
+func (r *Record) Equal(o *Record) bool {
+	return (r == nil && o == nil) ||
+		r != nil &&
+			r.BaseName == o.BaseName &&
+			compareNumeric(r.BaseTime, o.BaseTime) &&
+			r.BaseUnit == o.BaseUnit &&
+			compareNumeric(r.BaseValue, o.BaseValue) &&
+			compareNumeric(r.BaseSum, o.BaseSum) &&
+			r.BaseVersion == o.BaseVersion &&
+			r.Name == o.Name &&
+			r.Unit == o.Unit &&
+			compareNumeric(r.Value, o.Value) &&
+			r.StringValue == o.StringValue &&
+			(r.BooleanValue == nil && o.BooleanValue == nil ||
+				r.BooleanValue != nil && *r.BooleanValue == *o.BooleanValue) &&
+			bytes.Equal(r.DataValue, o.DataValue) &&
+			compareNumeric(r.Sum, o.Sum) &&
+			compareNumeric(r.Time, o.Time) &&
+			compareNumeric(r.UpdateTime, o.UpdateTime)
 }

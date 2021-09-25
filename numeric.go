@@ -24,10 +24,64 @@ func sumNumeric(a, b Numeric) Numeric {
 	case float32, float64, Decimal, *Decimal:
 		return numericToFloat64(a) + numericToFloat64(b)
 	case json.Number:
-		if i, err := v.Int64(); err != nil {
-			return addToNumericInt(i, b)
+		return sumNumeric(jsonToInt64OrFloat64(v), b)
+	default:
+		panic(fmt.Sprintf("invalid value type: %T", a))
+	}
+}
+
+// compareNumeric returns true if a and b are equal.
+func compareNumeric(a, b Numeric) bool {
+	switch x := a.(type) {
+	case nil:
+		return b == nil
+
+	case int, int8, int16, int32, int64:
+		switch b.(type) {
+		case int, int8, int16, int32, int64:
+			return numericToInt64(a) == numericToInt64(b)
+		case uint, uint8, uint16, uint32, uint64:
+			if numericToInt64(b) < 0 {
+				return false
+			}
+			return numericToInt64(a) == numericToInt64(b)
+		default:
+			return false
 		}
-		return numericToFloat64(a) + numericToFloat64(b)
+
+	case uint, uint8, uint16, uint32, uint64:
+		switch b.(type) {
+		case int, int8, int16, int32, int64:
+			if numericToInt64(b) < 0 {
+				return false
+			}
+			return numericToUint64(a) == numericToUint64(b)
+		case uint, uint8, uint16, uint32, uint64:
+			return numericToUint64(a) == numericToUint64(b)
+		default:
+			return false
+		}
+
+	case float32, float64:
+		return numericToFloat64(a) == numericToFloat64(b)
+
+	case Decimal:
+		switch y := b.(type) {
+		case Decimal:
+			return x.Equal(y)
+		case *Decimal:
+			return x.Equal(*y)
+		default:
+			return numericToFloat64(a) == numericToFloat64(b)
+		}
+
+	case json.Number:
+		switch y := b.(type) {
+		case json.Number:
+			return x == y
+		default:
+			return numericToFloat64(a) == numericToFloat64(b)
+		}
 	default:
 		panic(fmt.Sprintf("invalid value type: %T", a))
 	}
@@ -78,13 +132,15 @@ func timeToNumeric(t time.Time) Numeric {
 
 // numericToTime converts a Numeric value to a time.Time.
 func numericToTime(v Numeric) time.Time {
-	switch v.(type) {
+	switch n := v.(type) {
 	case nil:
 		return time.Time{}
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return intToTime(numericToInt64(v))
 	case float32, float64, Decimal, *Decimal:
 		return floatToTime(numericToFloat64(v))
+	case json.Number:
+		return numericToTime(jsonToInt64OrFloat64(n))
 	default:
 		panic("unsupported type")
 	}
@@ -92,13 +148,15 @@ func numericToTime(v Numeric) time.Time {
 
 // numericToDuration converts a Numeric value to a duration.
 func numericToDuration(v Numeric) time.Duration {
-	switch v.(type) {
+	switch n := v.(type) {
 	case nil:
 		return 0
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return time.Duration(numericToInt64(v)) * time.Second
-	case float32, float64, Decimal, *Decimal, json.Number:
+	case float32, float64, Decimal, *Decimal:
 		return floatToDuration(numericToFloat64(v))
+	case json.Number:
+		return numericToDuration(jsonToInt64OrFloat64(n))
 	default:
 		panic("unsupported type")
 	}
@@ -228,4 +286,13 @@ func numericToFloat64(v Numeric) float64 {
 	default:
 		panic(fmt.Sprintf("invalid value type: %T", f))
 	}
+}
+
+// jsonToInt64OrFloat64 returns a json.Number as either an int64 or float64.
+func jsonToInt64OrFloat64(n json.Number) Numeric {
+	if i, err := n.Int64(); err == nil {
+		return i
+	}
+	f, _ := n.Float64()
+	return f
 }
