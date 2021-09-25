@@ -35,6 +35,24 @@ func (n Decimal) Int() int {
 	return n[1] * pow10(n[0])
 }
 
+// Equal returns true if the given Decimal is equal.
+func (n Decimal) Equal(d Decimal) bool {
+	if n[0] > d[0] {
+		return d[1] == n[1]*pow10(n[0]-d[0])
+	}
+	return n[1] == d[1]*pow10(d[0]-n[0])
+}
+
+// String returns the string representation of the Decimal value.
+func (n Decimal) String() string {
+	return fmt.Sprintf("%ve%v", n[1], n[0])
+}
+
+// MarshalText encodes the receiver into UTF-8-encoded text and returns the result.
+func (n Decimal) MarshalText() ([]byte, error) {
+	return []byte(n.String()), nil
+}
+
 // decimalType is used for (de)serialization of the Decimal type.
 type decimalType struct{}
 
