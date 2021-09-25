@@ -57,9 +57,9 @@ func Decode(records []Record) (list []Measurement, err error) {
 
 		switch {
 		case o.Value != nil:
-			list[i] = &Value{Attributes: m, Value: numericToFloat64(sumNumeric(baseValue, o.Value))}
+			list[i] = &Value{Attributes: m, Value: sumNumeric(baseValue, o.Value)}
 		case o.Sum != nil:
-			list[i] = &Sum{Attributes: m, Value: numericToFloat64(sumNumeric(baseSum, o.Sum))}
+			list[i] = &Sum{Attributes: m, Value: sumNumeric(baseSum, o.Sum)}
 		case o.StringValue != "":
 			list[i] = &String{Attributes: m, Value: o.StringValue}
 		case len(o.DataValue) > 0:

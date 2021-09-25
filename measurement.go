@@ -52,15 +52,15 @@ func (m *Attributes) Record() Record {
 	return r
 }
 
-// Value represents a floating point measurement value.
+// Value represents a numeric measurement value.
 // It implements Measurement.
 type Value struct {
 	Attributes
-	Value float64
+	Value Numeric
 }
 
 // NewValue returns a new Value with the corresponding value and attributes.
-func NewValue(name string, value float64, unit Unit, time time.Time, updateTime time.Duration) *Value {
+func NewValue(name string, value Numeric, unit Unit, time time.Time, updateTime time.Duration) *Value {
 	return &Value{
 		Attributes: Attributes{
 			Name:       name,
@@ -78,7 +78,7 @@ func (v *Value) Equal(ml Measurement) bool {
 	if !ok {
 		return false
 	}
-	return v.Attributes.Equal(&b.Attributes) && v.Value == b.Value
+	return v.Attributes.Equal(&b.Attributes) && compareNumeric(v.Value, b.Value)
 }
 
 // Record returns a SenML record representing the value.
@@ -92,7 +92,7 @@ func (v *Value) Record() Record {
 // It implements Measurement.
 type Sum struct {
 	Attributes
-	Value float64
+	Value Numeric
 }
 
 // NewSum returns a new Sum value with the corresponding value and attributes.
@@ -114,7 +114,7 @@ func (v *Sum) Equal(ml Measurement) bool {
 	if !ok {
 		return false
 	}
-	return v.Attributes.Equal(&b.Attributes) && v.Value == b.Value
+	return v.Attributes.Equal(&b.Attributes) && compareNumeric(v.Value, b.Value)
 }
 
 // Record returns a SenML record representing the value.

@@ -1,6 +1,9 @@
 package senml
 
-import "encoding/json"
+import (
+	"bytes"
+	"encoding/json"
+)
 
 // EncodeJSON encodes a list of measurements into JSON.
 func EncodeJSON(list []Measurement) ([]byte, error) {
@@ -9,8 +12,11 @@ func EncodeJSON(list []Measurement) ([]byte, error) {
 
 // DecodeJSON decodes a list of measurements from JSON.
 func DecodeJSON(j []byte) ([]Measurement, error) {
+	dec := json.NewDecoder(bytes.NewReader(j))
+	dec.UseNumber()
+
 	obj := make([]Record, 0)
-	err := json.Unmarshal(j, &obj)
+	err := dec.Decode(&obj)
 	if err != nil {
 		return nil, err
 	}
