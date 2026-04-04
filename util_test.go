@@ -15,6 +15,10 @@ func toString(ml []Measurement) string {
 }
 
 func equal(a, b []Measurement) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
 	for i := range a {
 		if !a[i].Equal(b[i]) {
 			return false

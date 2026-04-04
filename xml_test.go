@@ -16,19 +16,22 @@ func TestEncodeXMLExamples(t *testing.T) {
 func TestDecodeXMLExamples(t *testing.T) {
 	AutoTime = false
 	for n, example := range testVectors {
-		if example.XML == "" {
-			continue
-		}
+		t.Run(n, func(t *testing.T) {
+			if example.XML == "" {
+				t.SkipNow()
+				return
+			}
 
-		res, err := DecodeXML([]byte(example.XML))
-		if err != nil {
-			t.Errorf("Error decoding %s: %s", n, err)
-			continue
-		}
+			res, err := DecodeXML([]byte(example.XML))
+			if err != nil {
+				t.Errorf("Error decoding %s: %s", n, err)
+				return
+			}
 
-		if !equal(res, example.Result) {
-			t.Errorf("Decode for example %s incorrect, got:\n%s\nexpected:\n%s", n, toString(res), toString(example.Result))
-		}
+			if !equal(example.Result, res) {
+				t.Errorf("Decode for example %s incorrect, got:\n%s\nexpected:\n%s", n, toString(res), toString(example.Result))
+			}
+		})
 	}
 }
 
