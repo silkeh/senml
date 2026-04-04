@@ -129,9 +129,9 @@ func numericToInt64(v Numeric) int64 {
 	case float64:
 		return int64(i)
 	case Decimal:
-		return int64(i.Int())
+		return i.Int64()
 	case *Decimal:
-		return int64(i.Int())
+		return i.Int64()
 	default:
 		panic(fmt.Sprintf("invalid value type: %T", i))
 	}
@@ -168,9 +168,9 @@ func numericToUint64(v Numeric) uint64 {
 	case float64:
 		return uint64(i)
 	case Decimal:
-		return uint64(i.Int())
+		return i.Uint64()
 	case *Decimal:
-		return uint64(i.Int())
+		return i.Uint64()
 	default:
 		panic(fmt.Sprintf("invalid value type: %T", i))
 	}
@@ -207,9 +207,9 @@ func numericToFloat64(v Numeric) float64 {
 	case float64:
 		return f
 	case Decimal:
-		return f.Float()
+		return f.Float64()
 	case *Decimal:
-		return f.Float()
+		return f.Float64()
 	default:
 		panic(fmt.Sprintf("invalid value type: %T", f))
 	}
