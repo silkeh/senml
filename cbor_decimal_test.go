@@ -1,11 +1,13 @@
 package senml_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"math"
 	"testing"
 
+	"github.com/fxamacker/cbor/v2"
 	"github.com/silkeh/senml"
 )
 
@@ -371,6 +373,23 @@ func ExampleDecimal_IsInt64() {
 	// 9223372036854775807e+0 is int64: true
 }
 
+func ExampleDecimal_MarshalCBOR() {
+	f := senml.NewDecimal(-2, 27315)
+
+	data, _ := cbor.Marshal(f)
+	fmt.Printf("% 02x\n", data)
+	// Output:
+	// c4 82 21 19 6a b3
+}
+
+func BenchmarkDecimal_MarshalCBOR(b *testing.B) {
+	v := senml.NewDecimal(-2, 27315)
+
+	for b.Loop() {
+		_, _ = cbor.Marshal(v)
+	}
+}
+
 func ExampleDecimal_MarshalJSON() {
 	f := senml.NewDecimal(-2, 27315)
 
@@ -387,6 +406,36 @@ func ExampleDecimal_MarshalText() {
 	fmt.Println(string(data))
 	// Output:
 	// 27315e-2
+}
+
+func ExampleDecimal_UnmarshalCBOR() {
+	var f senml.Decimal
+
+	cbor.Unmarshal([]byte{0xC4, 0x82, 0x21, 0x19, 0x6a, 0xb3}, &f)
+
+	fmt.Println(f)
+	// Output:
+	// 27315e-2
+}
+
+func BenchmarkDecimal_UnmarshalCBOR(b *testing.B) {
+	for b.Loop() {
+		v := senml.Decimal{}
+		_ = cbor.Unmarshal([]byte{0xC4, 0x82, 0x21, 0x19, 0x6a, 0xb3}, &v)
+	}
+}
+
+func TestDecimal_UnmarshalCBOR(t *testing.T) {
+	var f senml.Decimal
+
+	err := cbor.Unmarshal([]byte{0x82, 0x21, 0x19, 0x6a, 0xb3}, &f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if f.Compare(senml.NewDecimal(-2, 27315)) != 0 {
+		t.Errorf("expected 27315e-1, got %e", f)
+	}
 }
 
 func ExampleDecimal_UnmarshalJSON() {
@@ -407,4 +456,74 @@ func ExampleDecimal_UnmarshalText() {
 	fmt.Println(f)
 	// Output:
 	// 27315e-2
+}
+
+func TestDecimal_cbor(t *testing.T) {
+	tests := map[string]struct {
+		Value senml.Decimal
+		CBOR  []byte
+	}{
+		"zero": {
+			Value: senml.Decimal{},
+			CBOR:  []byte{0xc4, 0x82, 0x00, 0x00},
+		},
+		"rfc8949": {
+			Value: senml.NewDecimal(-2, 27315),
+			CBOR:  []byte{0xc4, 0x82, 0x21, 0x19, 0x6a, 0xb3},
+		},
+		"1.1": {
+			Value: senml.NewDecimal(-1, 11),
+			CBOR:  []byte{0xc4, 0x82, 0x20, 0x0b},
+		},
+		"1": {
+			Value: senml.NewDecimal(0, 1),
+			CBOR:  []byte{0xc4, 0x82, 0x00, 0x01},
+		},
+		"int8": {
+			Value: senml.NewDecimal(math.MinInt8, math.MaxInt8),
+			CBOR:  []byte{0xc4, 0x82, 0x38, 0x7f, 0x18, 0x7f},
+		},
+		"int16": {
+			Value: senml.NewDecimal(math.MinInt16, math.MaxInt16),
+			CBOR:  []byte{0xc4, 0x82, 0x39, 0x7f, 0xff, 0x19, 0x7f, 0xff},
+		},
+		"int32": {
+			Value: senml.NewDecimal(math.MinInt64, math.MaxInt32),
+			CBOR: []byte{
+				0xc4, 0x82, 0x3b, 0x7f, 0xff, 0xff, 0xff, 0xff,
+				0xff, 0xff, 0xff, 0x1a, 0x7f, 0xff, 0xff, 0xff,
+			},
+		},
+		"int64": {
+			Value: senml.NewDecimal(math.MinInt64, math.MaxInt64),
+			CBOR: []byte{
+				0xc4, 0x82, 0x3b, 0x7f, 0xff, 0xff, 0xff, 0xff,
+				0xff, 0xff, 0xff, 0x1b, 0x7f, 0xff, 0xff, 0xff,
+				0xff, 0xff, 0xff, 0xff},
+		},
+	}
+
+	for n, test := range tests {
+		t.Run(n, func(t *testing.T) {
+			gotCBOR, err := cbor.Marshal(test.Value)
+			if err != nil {
+				t.Errorf("marshal: %s", err)
+			}
+
+			if !bytes.Equal(gotCBOR, test.CBOR) {
+				t.Errorf("marshal: want % 02x, got % 02x", test.CBOR, gotCBOR)
+			}
+
+			gotValue := senml.Decimal{}
+
+			err = cbor.Unmarshal(test.CBOR, &gotValue)
+			if err != nil {
+				t.Errorf("unmarshal: %s", err)
+			}
+
+			if test.Value.Compare(gotValue) != 0 {
+				t.Errorf("unmarshal: want %e, got %e", test.Value, gotValue)
+			}
+		})
+	}
 }

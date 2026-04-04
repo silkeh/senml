@@ -6,6 +6,8 @@ import (
 	"math"
 	"math/big"
 	"strconv"
+
+	"github.com/fxamacker/cbor/v2"
 )
 
 const (
@@ -313,6 +315,18 @@ func (f Decimal) String() string {
 	return string(b)
 }
 
+// MarshalCBOR implements [cbor.Marshaler].
+func (f Decimal) MarshalCBOR() ([]byte, error) {
+	buffer := bytes.NewBuffer(nil)
+	buffer.WriteByte(0xc4)
+
+	if err := cbor.NewEncoder(buffer).Encode([2]int64{f.e, f.m}); err != nil {
+		return nil, fmt.Errorf("senml decimal: %w", err)
+	}
+
+	return buffer.Bytes(), nil
+}
+
 // MarshalJSON implements [encoding/json.Marshaler].
 func (f Decimal) MarshalJSON() ([]byte, error) {
 	return f.MarshalText()
@@ -321,6 +335,23 @@ func (f Decimal) MarshalJSON() ([]byte, error) {
 // MarshalText implements [encoding.TextMarshaler].
 func (f Decimal) MarshalText() ([]byte, error) {
 	return fmt.Appendf(nil, "%de%d", f.m, f.e), nil
+}
+
+// UnmarshalCBOR implements [Unmarshaler].
+func (f *Decimal) UnmarshalCBOR(data []byte) error {
+	if len(data) >= 1 && data[0] == 0xc4 {
+		data = data[1:]
+	}
+
+	parts := [2]int64{}
+
+	if err := cbor.Unmarshal(data, &parts); err != nil {
+		return fmt.Errorf("senml decimal: %w", err)
+	}
+
+	*f = Decimal{e: parts[0], m: parts[1]}
+
+	return nil
 }
 
 // UnmarshalJSON implements [encoding/json.Unmarshaler].

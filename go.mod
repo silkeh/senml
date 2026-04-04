@@ -1,5 +1,7 @@
 module github.com/silkeh/senml
 
-go 1.25
+go 1.25.0
 
-require github.com/ugorji/go/codec v1.2.4
+require github.com/fxamacker/cbor/v2 v2.9.1
+
+require github.com/x448/float16 v0.8.4 // indirect

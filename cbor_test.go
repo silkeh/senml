@@ -17,19 +17,22 @@ func TestEncodeCBORExamples(t *testing.T) {
 func TestDecodeCBORExamples(t *testing.T) {
 	AutoTime = false
 	for n, example := range testVectors {
-		if example.CBOR == nil {
-			continue
-		}
+		t.Run(n, func(t *testing.T) {
+			if example.CBOR == nil {
+				t.Skip("No CBOR encoding")
+				return
+			}
 
-		res, err := DecodeCBOR(example.CBOR)
-		if err != nil {
-			t.Errorf("Error decoding %s: %s", n, err)
-			continue
-		}
+			res, err := DecodeCBOR(example.CBOR)
+			if err != nil {
+				t.Errorf("Error decoding %s: %s", n, err)
+				return
+			}
 
-		if !equal(res, example.Result) {
-			t.Errorf("Decode for example %s incorrect, got:\n%s\nexpected:\n%s", n, toString(res), toString(example.Result))
-		}
+			if !equal(res, example.Result) {
+				t.Errorf("Decode for example %s incorrect, got:\n%s\nexpected:\n%s", n, toString(res), toString(example.Result))
+			}
+		})
 	}
 }
 
